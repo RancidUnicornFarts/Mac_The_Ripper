@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="23H527" minimumToolsVersion="Xcode 15.0" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Disk" representedClassName=".Disk" syncable="YES" codeGenerationType="class">
+        <attribute name="defaultGenre" optional="YES" attributeType="String"/>
+        <attribute name="fileName" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID"/>
+        <attribute name="maxTitles" attributeType="Integer 16" defaultValueString="1"/>
+        <relationship name="show" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Show" inverseName="disks" inverseEntity="Show"/>
+        <relationship name="titles" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Title" inverseName="disk" inverseEntity="Title"/>
+    </entity>
+    <entity name="Show" representedClassName="Show" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="startYear" optional="YES" attributeType="String"/>
+        <relationship name="disks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Disk" inverseName="show" inverseEntity="Disk"/>
+        <relationship name="titles" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Title" inverseName="show" inverseEntity="Title"/>
+    </entity>
+    <entity name="Title" representedClassName=".Title" syncable="YES" codeGenerationType="class">
+        <attribute name="episodeNumber" optional="YES" attributeType="String"/>
+        <attribute name="episodeTitle" optional="YES" attributeType="String"/>
+        <attribute name="genre" optional="YES" attributeType="String"/>
+        <attribute name="id" attributeType="UUID"/>
+        <attribute name="isVAM" attributeType="Boolean" defaultValueString="NO"/>
+        <attribute name="mediaType" optional="YES" attributeType="String"/>
+        <attribute name="seasonNumber" optional="YES" attributeType="String"/>
+        <attribute name="showName" optional="YES" attributeType="String"/>
+        <attribute name="titleNumber" attributeType="Integer 16"/>
+        <attribute name="year" optional="YES" attributeType="String"/>
+        <relationship name="disk" maxCount="1" deletionRule="Nullify" destinationEntity="Disk" inverseName="titles" inverseEntity="Disk"/>
+        <relationship name="show" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Show" inverseName="titles" inverseEntity="Show"/>
+        <relationship name="title" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Title" inverseName="title" inverseEntity="Title"/>
+    </entity>
+</model>

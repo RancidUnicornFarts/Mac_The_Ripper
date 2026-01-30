@@ -1,0 +1,548 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		C65A35A12F29230300FD95F4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C65A35872F29230100FD95F4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C65A358E2F29230100FD95F4;
+			remoteInfo = Mac_The_Ripper;
+		};
+		C65A35AB2F29230300FD95F4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C65A35872F29230100FD95F4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C65A358E2F29230100FD95F4;
+			remoteInfo = Mac_The_Ripper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C65A358F2F29230100FD95F4 /* Mac_The_Ripper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mac_The_Ripper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C65A35A02F29230300FD95F4 /* Mac_The_RipperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Mac_The_RipperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C65A35AA2F29230300FD95F4 /* Mac_The_RipperUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Mac_The_RipperUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		C65A35912F29230100FD95F4 /* Mac_The_Ripper */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Mac_The_Ripper;
+			sourceTree = "<group>";
+		};
+		C65A35A32F29230300FD95F4 /* Mac_The_RipperTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Mac_The_RipperTests;
+			sourceTree = "<group>";
+		};
+		C65A35AD2F29230300FD95F4 /* Mac_The_RipperUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Mac_The_RipperUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C65A358C2F29230100FD95F4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C65A359D2F29230300FD95F4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C65A35A72F29230300FD95F4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C65A35862F29230100FD95F4 = {
+			isa = PBXGroup;
+			children = (
+				C65A35912F29230100FD95F4 /* Mac_The_Ripper */,
+				C65A35A32F29230300FD95F4 /* Mac_The_RipperTests */,
+				C65A35AD2F29230300FD95F4 /* Mac_The_RipperUITests */,
+				C65A35902F29230100FD95F4 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C65A35902F29230100FD95F4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C65A358F2F29230100FD95F4 /* Mac_The_Ripper.app */,
+				C65A35A02F29230300FD95F4 /* Mac_The_RipperTests.xctest */,
+				C65A35AA2F29230300FD95F4 /* Mac_The_RipperUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C65A358E2F29230100FD95F4 /* Mac_The_Ripper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C65A35B42F29230300FD95F4 /* Build configuration list for PBXNativeTarget "Mac_The_Ripper" */;
+			buildPhases = (
+				C65A358B2F29230100FD95F4 /* Sources */,
+				C65A358C2F29230100FD95F4 /* Frameworks */,
+				C65A358D2F29230100FD95F4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C65A35912F29230100FD95F4 /* Mac_The_Ripper */,
+			);
+			name = Mac_The_Ripper;
+			packageProductDependencies = (
+			);
+			productName = Mac_The_Ripper;
+			productReference = C65A358F2F29230100FD95F4 /* Mac_The_Ripper.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C65A359F2F29230300FD95F4 /* Mac_The_RipperTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C65A35B72F29230300FD95F4 /* Build configuration list for PBXNativeTarget "Mac_The_RipperTests" */;
+			buildPhases = (
+				C65A359C2F29230300FD95F4 /* Sources */,
+				C65A359D2F29230300FD95F4 /* Frameworks */,
+				C65A359E2F29230300FD95F4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C65A35A22F29230300FD95F4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C65A35A32F29230300FD95F4 /* Mac_The_RipperTests */,
+			);
+			name = Mac_The_RipperTests;
+			packageProductDependencies = (
+			);
+			productName = Mac_The_RipperTests;
+			productReference = C65A35A02F29230300FD95F4 /* Mac_The_RipperTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C65A35A92F29230300FD95F4 /* Mac_The_RipperUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C65A35BA2F29230300FD95F4 /* Build configuration list for PBXNativeTarget "Mac_The_RipperUITests" */;
+			buildPhases = (
+				C65A35A62F29230300FD95F4 /* Sources */,
+				C65A35A72F29230300FD95F4 /* Frameworks */,
+				C65A35A82F29230300FD95F4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C65A35AC2F29230300FD95F4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C65A35AD2F29230300FD95F4 /* Mac_The_RipperUITests */,
+			);
+			name = Mac_The_RipperUITests;
+			packageProductDependencies = (
+			);
+			productName = Mac_The_RipperUITests;
+			productReference = C65A35AA2F29230300FD95F4 /* Mac_The_RipperUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C65A35872F29230100FD95F4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					C65A358E2F29230100FD95F4 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					C65A359F2F29230300FD95F4 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = C65A358E2F29230100FD95F4;
+					};
+					C65A35A92F29230300FD95F4 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = C65A358E2F29230100FD95F4;
+					};
+				};
+			};
+			buildConfigurationList = C65A358A2F29230100FD95F4 /* Build configuration list for PBXProject "Mac_The_Ripper" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C65A35862F29230100FD95F4;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C65A35902F29230100FD95F4 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C65A358E2F29230100FD95F4 /* Mac_The_Ripper */,
+				C65A359F2F29230300FD95F4 /* Mac_The_RipperTests */,
+				C65A35A92F29230300FD95F4 /* Mac_The_RipperUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C65A358D2F29230100FD95F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C65A359E2F29230300FD95F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C65A35A82F29230300FD95F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C65A358B2F29230100FD95F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C65A359C2F29230300FD95F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C65A35A62F29230300FD95F4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C65A35A22F29230300FD95F4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C65A358E2F29230100FD95F4 /* Mac_The_Ripper */;
+			targetProxy = C65A35A12F29230300FD95F4 /* PBXContainerItemProxy */;
+		};
+		C65A35AC2F29230300FD95F4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C65A358E2F29230100FD95F4 /* Mac_The_Ripper */;
+			targetProxy = C65A35AB2F29230300FD95F4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C65A35B22F29230300FD95F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.7;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C65A35B32F29230300FD95F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.7;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		C65A35B52F29230300FD95F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Mac_The_Ripper/Mac_The_Ripper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Mac_The_Ripper/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tdcohelpdesk.Mac-The-Ripper";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C65A35B62F29230300FD95F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Mac_The_Ripper/Mac_The_Ripper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Mac_The_Ripper/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tdcohelpdesk.Mac-The-Ripper";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C65A35B82F29230300FD95F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.7;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tdcohelpdesk.Mac-The-RipperTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mac_The_Ripper.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mac_The_Ripper";
+			};
+			name = Debug;
+		};
+		C65A35B92F29230300FD95F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.7;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tdcohelpdesk.Mac-The-RipperTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mac_The_Ripper.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mac_The_Ripper";
+			};
+			name = Release;
+		};
+		C65A35BB2F29230300FD95F4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tdcohelpdesk.Mac-The-RipperUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Mac_The_Ripper;
+			};
+			name = Debug;
+		};
+		C65A35BC2F29230300FD95F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tdcohelpdesk.Mac-The-RipperUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = Mac_The_Ripper;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C65A358A2F29230100FD95F4 /* Build configuration list for PBXProject "Mac_The_Ripper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C65A35B22F29230300FD95F4 /* Debug */,
+				C65A35B32F29230300FD95F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C65A35B42F29230300FD95F4 /* Build configuration list for PBXNativeTarget "Mac_The_Ripper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C65A35B52F29230300FD95F4 /* Debug */,
+				C65A35B62F29230300FD95F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C65A35B72F29230300FD95F4 /* Build configuration list for PBXNativeTarget "Mac_The_RipperTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C65A35B82F29230300FD95F4 /* Debug */,
+				C65A35B92F29230300FD95F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C65A35BA2F29230300FD95F4 /* Build configuration list for PBXNativeTarget "Mac_The_RipperUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C65A35BB2F29230300FD95F4 /* Debug */,
+				C65A35BC2F29230300FD95F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C65A35872F29230100FD95F4 /* Project object */;
+}
