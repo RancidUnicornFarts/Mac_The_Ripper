@@ -15,7 +15,6 @@ struct TitleListView: View {
 
     @State private var showAddEditor = false
     @State private var editingTitle: Title? = nil
-    @State private var showCSV = false
 
     init(disk: Disk) {
         self.disk = disk
@@ -74,7 +73,6 @@ struct TitleListView: View {
             HStack {
                 Button("Add Title") { showAddEditor = true }
                 Spacer()
-                Button("Preview CSV") { showCSV = true }
             }
             .padding(.horizontal)
             .padding(.bottom, 10)
@@ -84,9 +82,6 @@ struct TitleListView: View {
         }
         .sheet(item: $editingTitle) { title in
             TitleEditorView(disk: disk, titleToEdit: title)
-        }
-        .sheet(isPresented: $showCSV) {
-            CSVPreviewView(disk: disk)
         }
     }
 

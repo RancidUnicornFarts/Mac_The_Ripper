@@ -22,45 +22,48 @@ struct Mac_The_RipperApp: App {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                .sheet(isPresented: $showingTVShows) {
-                    ShowManagerView()
-                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .sheet(isPresented: $csvController.isShowingPreview) {
+                    CSVPreviewView(text: csvController.csvText)
                 }
         }
 
         .commands {
             CommandGroup(after: .newItem) {
+
                 Button("Manage TV Shows…") {
-                    showingTVShows = true
+                    showManager.open()
                 }
                 .keyboardShortcut("T", modifiers: [.command, .shift])
-
 
                 Divider()
 
                 Button("Preview CSV…") {
                     previewCSV()
                 }
+                .keyboardShortcut("P", modifiers: [.command, .shift])
 
                 Button("Export CSV…") {
                     exportCSV()
                 }
-                .disabled(csvController.isShowingPreview)
+                .keyboardShortcut("E", modifiers: [.command, .shift])
+
             }
         }
+
+
     }
 
     private func previewCSV() {
         let titles = fetchAllTitles()
         let csv = CSVGenerator.makeScriptCSV(allTitles: titles)
-        csvController.setCSVText(csv)
-        csvController.preview()
+        csvController.csvText = csv
+        csvController.isShowingPreview = true
     }
 
     private func exportCSV() {
         let titles = fetchAllTitles()
         let csv = CSVGenerator.makeScriptCSV(allTitles: titles)
-        csvController.setCSVText(csv)
+        csvController.csvText = csv
         csvController.export()
     }
 
@@ -73,4 +76,5 @@ struct Mac_The_RipperApp: App {
         ]
         return (try? ctx.fetch(req)) ?? []
     }
+
 }

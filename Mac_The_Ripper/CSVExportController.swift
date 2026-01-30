@@ -6,33 +6,47 @@
 //
 
 import SwiftUI
-import CoreData
+import AppKit
 
 @MainActor
 final class CSVExportController: ObservableObject {
-    @Published var isShowingPreview = false
-    @Published var isExporting = false
-    @Published var exportDoc = CSVDocument(text: "")
-    
-    var csvText: String = ""
+    @Published var isShowingPreview: Bool = false
+    @Published var csvText: String = ""
 
+    // Optional convenience (useful from App commands)
     func setCSVText(_ text: String) {
         csvText = text
-        exportDoc = CSVDocument(text: text)
     }
 
-    func preview() {
+    func showPreview() {
         isShowingPreview = true
     }
 
-    @MainActor
-    func export() {
-        // If Preview is open, close it first
+    func hidePreview() {
         isShowingPreview = false
+    }
 
-        // Present the exporter on the next runloop tick (prevents modal-on-modal)
-        DispatchQueue.main.async {
-            self.isExporting = true
+    /// Shows a "Save As…" dialog and writes `csvText` as UTF-8 to the chosen location.
+    /// Default filename: input.csv
+    func export() {
+        let panel = NSSavePanel()
+        panel.title = "Export CSV"
+        panel.nameFieldStringValue = "input.csv"
+        panel.canCreateDirectories = true
+
+        // Prefer modern type filtering; fall back for older SDKs.
+        if #available(macOS 11.0, *) {
+            panel.allowedContentTypes = [.commaSeparatedText]
+        } else {
+            panel.allowedFileTypes = ["csv"]
+        }
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        do {
+            try csvText.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            NSAlert(error: error).runModal()
         }
     }
 }
