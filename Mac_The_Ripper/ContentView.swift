@@ -13,8 +13,13 @@ struct ContentView: View {
     @State private var selection: NSManagedObjectID?
     @State private var editingID: NSManagedObjectID?
 
+    var selectedDisk: Disk? {
+        guard let id = selection else { return nil }
+        return try? viewContext.existingObject(with: id) as? Disk
+    }
+    
     var body: some View {
-        NavigationStack {
+        NavigationSplitView {
             List(selection: $selection) {
                 ForEach(disks, id: \.objectID) { disk in
                     DiskRow(disk: disk)
@@ -26,57 +31,54 @@ struct ContentView: View {
                             Button("Delete", role: .destructive) { delete(disk) }
                         }
                         .simultaneousGesture(
-                            TapGesture(count: 2).onEnded {
-                                editingID = disk.objectID
-                            }
+                            TapGesture(count: 2).onEnded { editingID = disk.objectID }
                         )
                 }
             }
             .navigationTitle("Disks")
             .toolbar {
-                ToolbarItemGroup {
-                    Button {
-                        addDisk()
-                    } label: {
-                        Label("Add Disk", systemImage: "plus")
-                    }
-
-                    Button {
-                        deleteSelection()
-                    } label: {
-                        Label("Delete Disk", systemImage: "trash")
-                    }
+                Button { addDisk() } label: { Image(systemName: "plus") }
+                Button { deleteSelection() } label: { Image(systemName: "trash") }
                     .disabled(selection == nil)
-                }
             }
             .onDeleteCommand { deleteSelection() }
-            .sheet(item: $editingID.asBox) { box in
-                if let disk = try? viewContext.existingObject(with: box.id) as? Disk {
-                    DiskEditorView(disk: disk)
-                        .environment(\.managedObjectContext, viewContext)
-                }
+
+        } detail: {
+            if let disk = selectedDisk {
+                TitlesListView(disk: disk)
+            } else {
+                Text("Select a disk")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .sheet(item: $editingID.asBox) { box in
+            if let disk = try? viewContext.existingObject(with: box.id) as? Disk {
+                DiskEditorView(disk: disk)
             }
         }
     }
 
     // MARK: - Actions
 
+    @State private var lastError: String?
+    @State private var showingError = false
+
     private func addDisk() {
         let disk = Disk(context: viewContext)
         disk.id = UUID()
         disk.fileName = "Untitled"
         disk.defaultGenre = ""
-        disk.maxTitles = 0
+        disk.maxTitles = 12
 
         do {
             try viewContext.save()
+            selection = disk.objectID
+            editingID = disk.objectID        // if you show a sheet editor
         } catch {
             viewContext.rollback()
-            return
+            lastError = error.localizedDescription
+            showingError = true
         }
-
-        selection = disk.objectID
-        editingID = disk.objectID
     }
 
     private func deleteSelection() {
@@ -134,5 +136,36 @@ private extension Optional where Wrapped == NSManagedObjectID {
     var asBox: ObjectIDBox? {
         get { self.map(ObjectIDBox.init(id:)) }
         set { self = newValue?.id }
+    }
+}
+
+struct TitlesListView: View {
+    @Environment(\.managedObjectContext) private var ctx
+    let disk: Disk
+
+    @FetchRequest private var titles: FetchedResults<Title>
+
+    init(disk: Disk) {
+        self.disk = disk
+        _titles = FetchRequest(
+            sortDescriptors: [NSSortDescriptor(key: "titleNumber", ascending: true)],
+            predicate: NSPredicate(format: "disk == %@", disk),
+            animation: .default
+        )
+    }
+
+    var body: some View {
+        List {
+            ForEach(titles, id: \.objectID) { t in
+                HStack {
+                    Text("\(Int(t.titleNumber))").monospacedDigit()
+                    Text(t.episodeTitle ?? "")
+                    Spacer()
+                    Text(t.showName ?? "")
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .navigationTitle(disk.fileName ?? "Disk")
     }
 }
