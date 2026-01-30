@@ -15,18 +15,26 @@ struct Mac_The_RipperApp: App {
 
     @StateObject private var csvController = CSVExportController()
     @StateObject private var showManager = ShowManagerController()
+    @State private var showingTVShows = false
 
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .sheet(isPresented: $showingTVShows) {
+                    ShowManagerView()
+                        .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                }
         }
+
         .commands {
             CommandGroup(after: .newItem) {
                 Button("Manage TV Shows…") {
-                    showManager.open()
+                    showingTVShows = true
                 }
                 .keyboardShortcut("T", modifiers: [.command, .shift])
+
 
                 Divider()
 

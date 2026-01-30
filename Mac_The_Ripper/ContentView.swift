@@ -1,3 +1,8 @@
+//
+//  ContentView.swift
+//  Mac_The_Ripper
+//
+
 import SwiftUI
 import CoreData
 
@@ -11,13 +16,16 @@ struct ContentView: View {
     private var disks: FetchedResults<Disk>
 
     @State private var selection: NSManagedObjectID?
-    @State private var editingID: NSManagedObjectID?
+    @State private var editingDiskID: NSManagedObjectID?
 
-    var selectedDisk: Disk? {
+    @State private var lastError: String?
+    @State private var showingError = false
+
+    private var selectedDisk: Disk? {
         guard let id = selection else { return nil }
         return try? viewContext.existingObject(with: id) as? Disk
     }
-    
+
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
@@ -25,43 +33,60 @@ struct ContentView: View {
                     DiskRow(disk: disk)
                         .tag(disk.objectID)
                         .contentShape(Rectangle())
-                        .contextMenu {
-                            Button("Edit…") { editingID = disk.objectID }
-                            Divider()
-                            Button("Delete", role: .destructive) { delete(disk) }
-                        }
                         .simultaneousGesture(
-                            TapGesture(count: 2).onEnded { editingID = disk.objectID }
+                            TapGesture(count: 1).onEnded {
+                                selection = disk.objectID
+                            }
                         )
+                        .simultaneousGesture(
+                            TapGesture(count: 2).onEnded {
+                                selection = disk.objectID
+                                editingDiskID = disk.objectID
+                            }
+                        )
+                        .contextMenu {
+                            Button("Edit…") { editingDiskID = disk.objectID }
+                            Divider()
+                            Button("Delete", role: .destructive) { deleteDisk(disk) }
+                        }
                 }
+
             }
+            .listStyle(.sidebar)
             .navigationTitle("Disks")
             .toolbar {
-                Button { addDisk() } label: { Image(systemName: "plus") }
-                Button { deleteSelection() } label: { Image(systemName: "trash") }
-                    .disabled(selection == nil)
+                ToolbarItemGroup {
+                    Button { addDisk() } label: { Image(systemName: "plus") }
+                    Button { deleteSelection() } label: { Image(systemName: "trash") }
+                        .disabled(selection == nil)
+                }
             }
             .onDeleteCommand { deleteSelection() }
-
         } detail: {
-            if let disk = selectedDisk {
-                TitlesListView(disk: disk)
-            } else {
-                Text("Select a disk")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            NavigationStack {
+                if let disk = selectedDisk {
+                    TitlesListView(disk: disk)
+                } else {
+                    Text("Select a disk")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
         }
-        .sheet(item: $editingID.asBox) { box in
+
+        .sheet(item: $editingDiskID.asBox) { box in
             if let disk = try? viewContext.existingObject(with: box.id) as? Disk {
                 DiskEditorView(disk: disk)
+                    .environment(\.managedObjectContext, viewContext)
             }
+        }
+        .alert("Error", isPresented: $showingError, presenting: lastError) { _ in
+            Button("OK", role: .cancel) {}
+        } message: { msg in
+            Text(msg)
         }
     }
 
-    // MARK: - Actions
-
-    @State private var lastError: String?
-    @State private var showingError = false
+    // MARK: - Disk actions
 
     private func addDisk() {
         let disk = Disk(context: viewContext)
@@ -73,7 +98,7 @@ struct ContentView: View {
         do {
             try viewContext.save()
             selection = disk.objectID
-            editingID = disk.objectID        // if you show a sheet editor
+            editingDiskID = disk.objectID
         } catch {
             viewContext.rollback()
             lastError = error.localizedDescription
@@ -85,28 +110,24 @@ struct ContentView: View {
         guard let id = selection,
               let disk = try? viewContext.existingObject(with: id) as? Disk
         else { return }
-        delete(disk)
+        deleteDisk(disk)
     }
 
-    private func delete(_ disk: Disk) {
+    private func deleteDisk(_ disk: Disk) {
         guard let ctx = disk.managedObjectContext else { return }
-
         ctx.delete(disk)
-
         do {
             try ctx.save()
+            if selection == disk.objectID { selection = nil }
         } catch {
             ctx.rollback()
-            return
-        }
-
-        if selection == disk.objectID {
-            selection = nil
+            lastError = error.localizedDescription
+            showingError = true
         }
     }
 }
 
-// MARK: - Row
+// MARK: - Disk row
 
 private struct DiskRow: View {
     @ObservedObject var disk: Disk
@@ -115,10 +136,7 @@ private struct DiskRow: View {
         HStack {
             Text(disk.fileName ?? "Untitled")
                 .lineLimit(1)
-
             Spacer()
-
-            // Show maxTitles on the right (replaces old "tracks")
             Text("\(Int(disk.maxTitles))")
                 .monospacedDigit()
         }
@@ -126,22 +144,14 @@ private struct DiskRow: View {
     }
 }
 
-// MARK: - Helpers
+// MARK: - Titles list (detail)
 
-private struct ObjectIDBox: Identifiable {
-    let id: NSManagedObjectID
-}
-
-private extension Optional where Wrapped == NSManagedObjectID {
-    var asBox: ObjectIDBox? {
-        get { self.map(ObjectIDBox.init(id:)) }
-        set { self = newValue?.id }
-    }
-}
-
-struct TitlesListView: View {
+private struct TitlesListView: View {
     @Environment(\.managedObjectContext) private var ctx
     let disk: Disk
+
+    @State private var titleSelection: NSManagedObjectID?
+    @State private var editRequest: TitleEditRequest?
 
     @FetchRequest private var titles: FetchedResults<Title>
 
@@ -155,17 +165,108 @@ struct TitlesListView: View {
     }
 
     var body: some View {
-        List {
+        List(selection: $titleSelection) {
             ForEach(titles, id: \.objectID) { t in
-                HStack {
-                    Text("\(Int(t.titleNumber))").monospacedDigit()
-                    Text(t.episodeTitle ?? "")
-                    Spacer()
-                    Text(t.showName ?? "")
-                        .foregroundStyle(.secondary)
-                }
+                TitleRow(title: t)
+                    .tag(t.objectID)
+                    .contentShape(Rectangle())
+                    .contextMenu {
+                        Button("Edit…") { editRequest = .edit(t.objectID) }
+                        Divider()
+                        Button("Delete", role: .destructive) { deleteTitle(t) }
+                    }
+                    .simultaneousGesture(
+                        TapGesture(count: 2).onEnded { editRequest = .edit(t.objectID) }
+                    )
             }
         }
         .navigationTitle(disk.fileName ?? "Disk")
+        .toolbar {
+            ToolbarItemGroup {
+                Button { editRequest = .new } label: { Image(systemName: "plus") }
+                Button { deleteSelectedTitle() } label: { Image(systemName: "trash") }
+                    .disabled(titleSelection == nil)
+            }
+        }
+        .onDeleteCommand { deleteSelectedTitle() }
+        .sheet(item: $editRequest) { req in
+            if let diskInCtx = try? ctx.existingObject(with: disk.objectID) as? Disk {
+                let titleToEdit: Title? = {
+                    guard let tid = req.titleID else { return nil }
+                    return try? ctx.existingObject(with: tid) as? Title
+                }()
+
+                TitleEditorView(disk: diskInCtx, titleToEdit: titleToEdit)
+                    .environment(\.managedObjectContext, ctx)
+            } else {
+                Text("Internal error: disk not found.")
+                    .padding()
+                    .frame(minWidth: 360, minHeight: 200)
+            }
+        }
+    }
+
+    private func deleteSelectedTitle() {
+        guard let id = titleSelection,
+              let t = try? ctx.existingObject(with: id) as? Title
+        else { return }
+        deleteTitle(t)
+    }
+
+    private func deleteTitle(_ t: Title) {
+        ctx.delete(t)
+        do {
+            try ctx.save()
+            if titleSelection == t.objectID { titleSelection = nil }
+        } catch {
+            ctx.rollback()
+        }
+    }
+}
+
+// MARK: - Title row
+
+private struct TitleRow: View {
+    @ObservedObject var title: Title
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Text("\(Int(title.titleNumber))")
+                .monospacedDigit()
+                .frame(width: 36, alignment: .leading)
+
+            Text(title.episodeTitle ?? "")
+                .lineLimit(1)
+
+            Spacer()
+
+            Text(title.showName ?? "")
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.vertical, 2)
+    }
+}
+
+// MARK: - Sheet request type
+
+private struct TitleEditRequest: Identifiable {
+    let id = UUID()
+    let titleID: NSManagedObjectID?
+
+    static var new: TitleEditRequest { .init(titleID: nil) }
+    static func edit(_ id: NSManagedObjectID) -> TitleEditRequest { .init(titleID: id) }
+}
+
+// MARK: - Helpers
+
+private struct ObjectIDBox: Identifiable {
+    let id: NSManagedObjectID
+}
+
+private extension Optional where Wrapped == NSManagedObjectID {
+    var asBox: ObjectIDBox? {
+        get { self.map(ObjectIDBox.init(id:)) }
+        set { self = newValue?.id }
     }
 }
