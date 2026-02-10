@@ -9,6 +9,24 @@ import Foundation
 import CoreData
 
 enum CSVGenerator {
+    
+    // File: CSVGenerator.swift
+
+    private static func parseInt(_ s: String?) -> Int? {
+        guard let s, !s.isEmpty else { return nil }
+        return Int(s.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+
+    private static func plexSeasonEpisode(season: String?, episode: String?) -> String {
+        // Season: 2 digits (or 3 if you ever exceed 99; format handles 100+ naturally)
+        // Episode: 3 digits (Plex-friendly)
+        let s = parseInt(season) ?? 0
+        let e = parseInt(episode) ?? 0
+        return String(format: "S%02dE%03d", s, e)
+    }
+
+    
+    
     // Script-compatible 6 columns, no trailing comma, final newline.
     static func makeScriptCSV(allTitles: [Title]) -> String {
         // Header names to match your Numbers export (cosmetic)
@@ -28,27 +46,28 @@ enum CSVGenerator {
             return $0.titleNumber < $1.titleNumber
         }
 
-        for t in sorted {
-            let folderName = t.disk?.fileName ?? ""
-            let titleNumber = String(Int(t.titleNumber))
-            let epTitle = t.episodeTitle ?? ""
-            let showName = t.showName ?? ""
-            let year = t.year ?? ""
+        // File: CSVGenerator.swift
 
-            // Build Plex-style season code: SxxEyyy (season width 2 or 3; episode always 3)
-            let seasonCode = plexSeasonCode(seasonString: t.seasonNumber, episodeString: t.episodeNumber)
+        for t in sorted {
+            let isoFile = t.disk?.fileName ?? ""
+
+            let seasonField = plexSeasonEpisode(
+                season: t.seasonNumber,
+                episode: t.episodeNumber
+            )
 
             let fields: [String] = [
-                escapeCSV(folderName),
-                escapeCSV(titleNumber),
-                escapeCSV(epTitle),
-                escapeCSV(showName),
-                escapeCSV(year),
-                escapeCSV(seasonCode)
+                isoFile,
+                String(Int(t.titleNumber)),
+                t.episodeTitle ?? "",
+                t.showName ?? "",
+                t.year ?? "",
+                seasonField
             ]
 
             lines.append(fields.joined(separator: ","))
         }
+
 
         return lines.joined(separator: "\n") + "\n"
     }

@@ -1,76 +1,84 @@
+//
 //  DiskEditorView.swift
 //  Mac_The_Ripper
 //
-//  Core Data entity assumptions (adjust if different):
-//    - Disk.title:  String?   (optional)
-//    - Disk.tracks: Int16     (non-optional; if optional, see notes below)
 
 import SwiftUI
 import CoreData
 
 struct DiskEditorView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.managedObjectContext) private var ctx
     @Environment(\.dismiss) private var dismiss
 
     @ObservedObject var disk: Disk
 
-    @State private var fileNameText: String = ""
-    @State private var defaultGenreText: String = ""
-    @State private var maxTitlesValue: Int = 0
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)],
+        animation: .default
+    )
+    private var shows: FetchedResults<Show>
+
+    @State private var selectedShowID: NSManagedObjectID?
 
     var body: some View {
-        Form {
-            Section("Disk") {
-                TextField("File / Folder Name", text: $fileNameText)
-
-                TextField("Default Genre", text: $defaultGenreText)
-
-                Stepper("Max Titles: \(maxTitlesValue)", value: $maxTitlesValue, in: 0...999)
-            }
-        }
-        .padding()
-        .frame(minWidth: 520, minHeight: 240)
-        .navigationTitle(fileNameText.isEmpty ? "Edit Disk" : fileNameText)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") {
-                    viewContext.rollback()
-                    dismiss()
+        VStack(spacing: 0) {
+            Form {
+                // NEW: Show assignment
+                Picker("Show", selection: $selectedShowID) {
+                    Text("Unassigned").tag(Optional<NSManagedObjectID>.none)
+                    Divider()
+                    ForEach(shows, id: \.objectID) { s in
+                        Text(s.name ?? "Untitled Show")
+                            .tag(Optional(s.objectID))
+                    }
                 }
-                .keyboardShortcut(.cancelAction)
+
+                TextField("File / Folder Name", text: Binding(
+                    get: { disk.fileName ?? "" },
+                    set: { disk.fileName = $0 }
+                ))
+
+                TextField("Default Genre", text: Binding(
+                    get: { disk.defaultGenre ?? "" },
+                    set: { disk.defaultGenre = $0 }
+                ))
+
+                Stepper("Max Titles: \(Int(disk.maxTitles))", value: Binding(
+                    get: { Int(disk.maxTitles) },
+                    set: { disk.maxTitles = Int16($0) }
+                ), in: 1...99)
             }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Save") { save() }
-                    .keyboardShortcut(.defaultAction)
+            .padding()
+
+            Divider()
+
+            HStack {
+                Spacer()
+                Button("Cancel") { dismiss() }
+                Button("Save") {
+                    applyShowSelection()
+                    do {
+                        try ctx.save()
+                        dismiss()
+                    } catch {
+                        ctx.rollback()
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
             }
+            .padding()
         }
+        .frame(minWidth: 520)
         .onAppear {
-            fileNameText = disk.fileName ?? ""
-            defaultGenreText = disk.defaultGenre ?? ""
-            maxTitlesValue = Int(disk.maxTitles)
+            selectedShowID = disk.show?.objectID
         }
     }
 
-    private func save() {
-        disk.fileName = fileNameText
-        disk.defaultGenre = defaultGenreText
-        disk.maxTitles = Int16(clamping: maxTitlesValue)
-
-        do {
-            if viewContext.hasChanges {
-                try viewContext.save()
-            }
-            dismiss()
-        } catch {
-            viewContext.rollback()
+    private func applyShowSelection() {
+        guard let id = selectedShowID else {
+            disk.show = nil
+            return
         }
-    }
-}
-
-private extension Int16 {
-    init(clamping value: Int) {
-        if value < Int(Int16.min) { self = .min }
-        else if value > Int(Int16.max) { self = .max }
-        else { self = Int16(value) }
+        disk.show = (try? ctx.existingObject(with: id) as? Show)
     }
 }

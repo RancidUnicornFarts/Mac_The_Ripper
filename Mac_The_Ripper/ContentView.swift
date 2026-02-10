@@ -5,64 +5,68 @@
 
 import SwiftUI
 import CoreData
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
+    // Column 1: Shows
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Disk.fileName, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Show.name, ascending: true)],
+        predicate: nil,
         animation: .default
     )
-    private var disks: FetchedResults<Disk>
+    private var shows: FetchedResults<Show>
 
-    @State private var selection: NSManagedObjectID?
+    // Selections
+    @State private var showFilter: ShowFilter = .unassigned
+    @State private var diskSelection: NSManagedObjectID?
     @State private var editingDiskID: NSManagedObjectID?
 
+    // Error UI
     @State private var lastError: String?
     @State private var showingError = false
 
     private var selectedDisk: Disk? {
-        guard let id = selection else { return nil }
+        guard let id = diskSelection else { return nil }
         return try? viewContext.existingObject(with: id) as? Disk
     }
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $selection) {
-                ForEach(disks, id: \.objectID) { disk in
-                    DiskRow(disk: disk)
-                        .tag(disk.objectID)
-                        .contentShape(Rectangle())
-                        .simultaneousGesture(
-                            TapGesture(count: 1).onEnded {
-                                selection = disk.objectID
-                            }
-                        )
-                        .simultaneousGesture(
-                            TapGesture(count: 2).onEnded {
-                                selection = disk.objectID
-                                editingDiskID = disk.objectID
-                            }
-                        )
-                        .contextMenu {
-                            Button("Edit…") { editingDiskID = disk.objectID }
-                            Divider()
-                            Button("Delete", role: .destructive) { deleteDisk(disk) }
-                        }
-                }
+            // MARK: - Column 1: Shows
+            List(selection: $showFilter) {
+                Text("Unassigned")
+                    .tag(ShowFilter.unassigned)
 
+                Section("Shows") {
+                    ForEach(shows, id: \.objectID) { s in
+                        Text(s.name ?? "Untitled Show")
+                            .lineLimit(1)
+                            .tag(ShowFilter.show(s.objectID))
+                    }
+                }
             }
             .listStyle(.sidebar)
-            .navigationTitle("Disks")
-            .toolbar {
-                ToolbarItemGroup {
-                    Button { addDisk() } label: { Image(systemName: "plus") }
-                    Button { deleteSelection() } label: { Image(systemName: "trash") }
-                        .disabled(selection == nil)
-                }
+            .navigationTitle("Shows")
+            .onChange(of: showFilter) { _, _ in
+                // Reset disk selection when switching shows
+                diskSelection = nil
             }
-            .onDeleteCommand { deleteSelection() }
+
+        } content: {
+            // MARK: - Column 2: Disks
+            DisksColumn(
+                showFilter: $showFilter,
+                diskSelection: $diskSelection,
+                editingDiskID: $editingDiskID,
+                onError: presentError(_:),
+                onAddDisk: addDisk(manuallyFor:)
+            )
+            .environment(\.managedObjectContext, viewContext)
+
         } detail: {
+            // MARK: - Column 3: Titles
             NavigationStack {
                 if let disk = selectedDisk {
                     TitlesListView(disk: disk)
@@ -72,7 +76,6 @@ struct ContentView: View {
                 }
             }
         }
-
         .sheet(item: $editingDiskID.asBox) { box in
             if let disk = try? viewContext.existingObject(with: box.id) as? Disk {
                 DiskEditorView(disk: disk)
@@ -86,45 +89,218 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Disk actions
+    // MARK: - Disk create helper
 
-    private func addDisk() {
+    private func addDisk(manuallyFor show: Show?) {
         let disk = Disk(context: viewContext)
         disk.id = UUID()
         disk.fileName = "Untitled"
         disk.defaultGenre = ""
         disk.maxTitles = 12
+        disk.show = show
 
         do {
             try viewContext.save()
-            selection = disk.objectID
+            diskSelection = disk.objectID
             editingDiskID = disk.objectID
         } catch {
             viewContext.rollback()
-            lastError = error.localizedDescription
-            showingError = true
+            presentError(error.localizedDescription)
         }
     }
 
-    private func deleteSelection() {
-        guard let id = selection,
-              let disk = try? viewContext.existingObject(with: id) as? Disk
+    private func presentError(_ msg: String) {
+        lastError = msg
+        showingError = true
+    }
+}
+
+// MARK: - Column 2: Disks
+
+private struct DisksColumn: View {
+    @Environment(\.managedObjectContext) private var ctx
+
+    @Binding var showFilter: ShowFilter
+    @Binding var diskSelection: NSManagedObjectID?
+    @Binding var editingDiskID: NSManagedObjectID?
+
+    let onError: (String) -> Void
+    let onAddDisk: (Show?) -> Void
+
+    @State private var isDropTarget = false
+
+    var body: some View {
+        // Key trick: force this subtree to be rebuilt when showFilter changes,
+        // so the FetchRequest is re-initialized with the right predicate.
+        DisksList(
+            showFilter: showFilter,
+            diskSelection: $diskSelection,
+            editingDiskID: $editingDiskID,
+            onError: onError,
+            onAddDisk: onAddDisk
+        )
+        .id(showFilter) // rebuild on filter change
+    }
+}
+
+private struct DisksList: View {
+    @Environment(\.managedObjectContext) private var ctx
+
+    let showFilter: ShowFilter
+    @Binding var diskSelection: NSManagedObjectID?
+    @Binding var editingDiskID: NSManagedObjectID?
+
+    let onError: (String) -> Void
+    let onAddDisk: (Show?) -> Void
+
+    @State private var isDropTarget = false
+
+    @FetchRequest private var disks: FetchedResults<Disk>
+
+    init(
+        showFilter: ShowFilter,
+        diskSelection: Binding<NSManagedObjectID?>,
+        editingDiskID: Binding<NSManagedObjectID?>,
+        onError: @escaping (String) -> Void,
+        onAddDisk: @escaping (Show?) -> Void
+    ) {
+        self.showFilter = showFilter
+        _diskSelection = diskSelection
+        _editingDiskID = editingDiskID
+        self.onError = onError
+        self.onAddDisk = onAddDisk
+
+        let predicate: NSPredicate
+        switch showFilter {
+        case .unassigned:
+            predicate = NSPredicate(format: "show == nil")
+        case .show:
+            // Can't resolve Show in init (no @Environment ctx yet). Fetch all assigned, filter in-memory.
+            predicate = NSPredicate(format: "show != nil")
+        }
+
+
+        _disks = FetchRequest(
+            sortDescriptors: [NSSortDescriptor(key: "fileName", ascending: true)],
+            predicate: predicate,
+            animation: .default
+        )
+    }
+
+    var body: some View {
+        List(selection: $diskSelection) {
+            ForEach(filteredDisks, id: \.objectID) { disk in
+                DiskRow(disk: disk)
+                    .tag(disk.objectID)
+                    .contentShape(Rectangle())
+                    .simultaneousGesture(
+                        TapGesture(count: 2).onEnded {
+                            diskSelection = disk.objectID
+                            editingDiskID = disk.objectID
+                        }
+                    )
+                    .contextMenu {
+                        Button("Edit…") { editingDiskID = disk.objectID }
+                        Divider()
+                        Button("Delete", role: .destructive) { deleteDisk(disk) }
+                    }
+            }
+        }
+        .listStyle(.sidebar)
+        .navigationTitle(disksTitle)
+        .toolbar {
+            ToolbarItemGroup {
+                Button { onAddDisk(selectedShow) } label: { Image(systemName: "plus") }
+                Button { deleteSelectedDisk() } label: { Image(systemName: "trash") }
+                    .disabled(diskSelection == nil)
+            }
+        }
+        .onDeleteCommand { deleteSelectedDisk() }
+        .onDrop(of: [.fileURL], isTargeted: $isDropTarget) { providers in
+            handleDiskDrop(providers: providers)
+        }
+    }
+
+    private var disksTitle: String {
+        switch showFilter {
+        case .unassigned: return "Disks (Unassigned)"
+        case .show: return "Disks"
+        }
+    }
+
+    private var selectedShow: Show? {
+        guard case .show(let id) = showFilter else { return nil }
+        return try? ctx.existingObject(with: id) as? Show
+    }
+
+    private func deleteSelectedDisk() {
+        guard let id = diskSelection,
+              let disk = try? ctx.existingObject(with: id) as? Disk
         else { return }
         deleteDisk(disk)
     }
 
     private func deleteDisk(_ disk: Disk) {
-        guard let ctx = disk.managedObjectContext else { return }
         ctx.delete(disk)
         do {
             try ctx.save()
-            if selection == disk.objectID { selection = nil }
+            if diskSelection == disk.objectID { diskSelection = nil }
         } catch {
             ctx.rollback()
-            lastError = error.localizedDescription
-            showingError = true
+            onError(error.localizedDescription)
         }
     }
+    
+    private var filteredDisks: [Disk] {
+        switch showFilter {
+        case .unassigned:
+            return Array(disks) // already filtered by predicate
+        case .show(let showID):
+            return disks.filter { $0.show?.objectID == showID }
+        }
+    }
+
+
+    private func handleDiskDrop(providers: [NSItemProvider]) -> Bool {
+        for p in providers where p.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+            p.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+                let url: URL? = {
+                    if let u = item as? URL { return u }
+                    if let data = item as? Data { return URL(dataRepresentation: data, relativeTo: nil) }
+                    return nil
+                }()
+                guard let url else { return }
+
+                Task { @MainActor in
+                    let disk = Disk(context: ctx)
+                    disk.id = UUID()
+                    disk.fileName = url.lastPathComponent
+                    disk.defaultGenre = ""
+                    disk.maxTitles = 12
+                    disk.show = selectedShow
+
+                    do {
+                        try ctx.save()
+                        diskSelection = disk.objectID
+                        editingDiskID = disk.objectID
+                    } catch {
+                        ctx.rollback()
+                        onError(error.localizedDescription)
+                    }
+                }
+            }
+            return true
+        }
+        return false
+    }
+}
+
+
+// MARK: - Show filter type for column 1
+
+private enum ShowFilter: Hashable {
+    case unassigned
+    case show(NSManagedObjectID)
 }
 
 // MARK: - Disk row
