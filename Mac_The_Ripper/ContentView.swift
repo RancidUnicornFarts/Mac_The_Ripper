@@ -50,7 +50,6 @@ struct ContentView: View {
             .listStyle(.sidebar)
             .navigationTitle("Shows")
             .onChange(of: showFilter) { _, _ in
-                // Reset disk selection when switching shows
                 diskSelection = nil
             }
 
@@ -118,8 +117,6 @@ struct ContentView: View {
 // MARK: - Column 2: Disks
 
 private struct DisksColumn: View {
-    @Environment(\.managedObjectContext) private var ctx
-
     @Binding var showFilter: ShowFilter
     @Binding var diskSelection: NSManagedObjectID?
     @Binding var editingDiskID: NSManagedObjectID?
@@ -127,11 +124,7 @@ private struct DisksColumn: View {
     let onError: (String) -> Void
     let onAddDisk: (Show?) -> Void
 
-    @State private var isDropTarget = false
-
     var body: some View {
-        // Key trick: force this subtree to be rebuilt when showFilter changes,
-        // so the FetchRequest is re-initialized with the right predicate.
         DisksList(
             showFilter: showFilter,
             diskSelection: $diskSelection,
@@ -155,37 +148,12 @@ private struct DisksList: View {
 
     @State private var isDropTarget = false
 
-    @FetchRequest private var disks: FetchedResults<Disk>
-
-    init(
-        showFilter: ShowFilter,
-        diskSelection: Binding<NSManagedObjectID?>,
-        editingDiskID: Binding<NSManagedObjectID?>,
-        onError: @escaping (String) -> Void,
-        onAddDisk: @escaping (Show?) -> Void
-    ) {
-        self.showFilter = showFilter
-        _diskSelection = diskSelection
-        _editingDiskID = editingDiskID
-        self.onError = onError
-        self.onAddDisk = onAddDisk
-
-        let predicate: NSPredicate
-        switch showFilter {
-        case .unassigned:
-            predicate = NSPredicate(format: "show == nil")
-        case .show:
-            // Can't resolve Show in init (no @Environment ctx yet). Fetch all assigned, filter in-memory.
-            predicate = NSPredicate(format: "show != nil")
-        }
-
-
-        _disks = FetchRequest(
-            sortDescriptors: [NSSortDescriptor(key: "fileName", ascending: true)],
-            predicate: predicate,
-            animation: .default
-        )
-    }
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(key: "fileName", ascending: true)],
+        predicate: nil,
+        animation: .default
+    )
+    private var disks: FetchedResults<Disk>
 
     var body: some View {
         List(selection: $diskSelection) {
@@ -193,12 +161,20 @@ private struct DisksList: View {
                 DiskRow(disk: disk)
                     .tag(disk.objectID)
                     .contentShape(Rectangle())
-                    .simultaneousGesture(
+
+                    // Make single click deterministic (don’t rely on List to infer it)
+                    .onTapGesture {
+                        diskSelection = disk.objectID
+                    }
+
+                    // Double-click edit, without interfering with the single-click selection
+                    .highPriorityGesture(
                         TapGesture(count: 2).onEnded {
                             diskSelection = disk.objectID
                             editingDiskID = disk.objectID
                         }
                     )
+
                     .contextMenu {
                         Button("Edit…") { editingDiskID = disk.objectID }
                         Divider()
@@ -218,6 +194,15 @@ private struct DisksList: View {
         .onDeleteCommand { deleteSelectedDisk() }
         .onDrop(of: [.fileURL], isTargeted: $isDropTarget) { providers in
             handleDiskDrop(providers: providers)
+        }
+    }
+
+    private var filteredDisks: [Disk] {
+        switch showFilter {
+        case .unassigned:
+            return disks.filter { $0.show == nil }
+        case .show(let showID):
+            return disks.filter { $0.show?.objectID == showID }
         }
     }
 
@@ -250,53 +235,42 @@ private struct DisksList: View {
             onError(error.localizedDescription)
         }
     }
-    
-    private var filteredDisks: [Disk] {
-        switch showFilter {
-        case .unassigned:
-            return Array(disks) // already filtered by predicate
-        case .show(let showID):
-            return disks.filter { $0.show?.objectID == showID }
-        }
-    }
-
 
     private func handleDiskDrop(providers: [NSItemProvider]) -> Bool {
-        for p in providers where p.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-            p.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
-                let url: URL? = {
-                    if let u = item as? URL { return u }
-                    if let data = item as? Data { return URL(dataRepresentation: data, relativeTo: nil) }
-                    return nil
-                }()
-                guard let url else { return }
+        // Accept first file URL; extend to multiple later if needed.
+        for p in providers {
+            if p.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                p.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+                    guard let data = item as? Data,
+                          let url = URL(dataRepresentation: data, relativeTo: nil)
+                    else { return }
 
-                Task { @MainActor in
-                    let disk = Disk(context: ctx)
-                    disk.id = UUID()
-                    disk.fileName = url.lastPathComponent
-                    disk.defaultGenre = ""
-                    disk.maxTitles = 12
-                    disk.show = selectedShow
+                    Task { @MainActor in
+                        let disk = Disk(context: ctx)
+                        disk.id = UUID()
+                        disk.fileName = url.lastPathComponent
+                        disk.defaultGenre = ""
+                        disk.maxTitles = 12
+                        disk.show = selectedShow // nil if Unassigned
 
-                    do {
-                        try ctx.save()
-                        diskSelection = disk.objectID
-                        editingDiskID = disk.objectID
-                    } catch {
-                        ctx.rollback()
-                        onError(error.localizedDescription)
+                        do {
+                            try ctx.save()
+                            diskSelection = disk.objectID
+                            editingDiskID = disk.objectID
+                        } catch {
+                            ctx.rollback()
+                            onError(error.localizedDescription)
+                        }
                     }
                 }
+                return true
             }
-            return true
         }
         return false
     }
 }
 
-
-// MARK: - Show filter type for column 1
+// MARK: - Show filter type
 
 private enum ShowFilter: Hashable {
     case unassigned
@@ -346,15 +320,22 @@ private struct TitlesListView: View {
                 TitleRow(title: t)
                     .tag(t.objectID)
                     .contentShape(Rectangle())
+                    .onTapGesture {
+                        titleSelection = t.objectID
+                    }
+                    .highPriorityGesture(
+                        TapGesture(count: 2).onEnded {
+                            titleSelection = t.objectID
+                            editRequest = .edit(t.objectID)
+                        }
+                    )
                     .contextMenu {
                         Button("Edit…") { editRequest = .edit(t.objectID) }
                         Divider()
                         Button("Delete", role: .destructive) { deleteTitle(t) }
                     }
-                    .simultaneousGesture(
-                        TapGesture(count: 2).onEnded { editRequest = .edit(t.objectID) }
-                    )
             }
+
         }
         .navigationTitle(disk.fileName ?? "Disk")
         .toolbar {
@@ -371,7 +352,6 @@ private struct TitlesListView: View {
                     guard let tid = req.titleID else { return nil }
                     return try? ctx.existingObject(with: tid) as? Title
                 }()
-
                 TitleEditorView(disk: diskInCtx, titleToEdit: titleToEdit)
                     .environment(\.managedObjectContext, ctx)
             } else {
@@ -405,6 +385,12 @@ private struct TitlesListView: View {
 private struct TitleRow: View {
     @ObservedObject var title: Title
 
+    private var plex: String { title.plexShowNumber ?? "" }
+
+    private var year: String {
+        (title.year ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             Text("\(Int(title.titleNumber))")
@@ -413,12 +399,25 @@ private struct TitleRow: View {
 
             Text(title.episodeTitle ?? "")
                 .lineLimit(1)
+                .fontWeight(.semibold)
 
             Spacer()
 
-            Text(title.showName ?? "")
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+            HStack(spacing: 10) {
+                Text(plex)
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 72, alignment: .trailing)
+
+                Text(year)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 52, alignment: .trailing)
+
+                Image(systemName: "checkmark")
+                    .opacity(title.isVAMFlag ? 1 : 0)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 16, alignment: .trailing)
+            }
         }
         .padding(.vertical, 2)
     }
